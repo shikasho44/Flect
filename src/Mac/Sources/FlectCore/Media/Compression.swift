@@ -181,8 +181,10 @@ enum CompressionCommand {
     }
 
     static func audioOnly(_ input: String, _ output: String, _ plan: Plan) -> [String] {
-        Ffmpeg.preamble + ["-i", input] + trackMaps + ["-c:v", "copy"] + audioCodec(plan)
-            + containerFlags(plan.container) + [output]
+        var arguments: [String] = Ffmpeg.preamble + ["-i", input] + trackMaps
+        arguments += ["-c:v", "copy"] + audioCodec(plan)
+        arguments += containerFlags(plan.container) + [output]
+        return arguments
     }
 
     static func encoder(_ plan: Plan) -> EncoderChoice {
@@ -193,14 +195,16 @@ enum CompressionCommand {
     static func singlePass(_ input: String, _ output: String, _ plan: Plan, _ encoder: EncoderChoice,
                            videoKbps: Int, threads: Int) -> [String] {
         let video = Settings.current.video
-        return Ffmpeg.preamble + ["-i", input] + trackMaps + videoFilter(plan)
-            + ["-threads", String(threads)]
-            + Encoders.bitrate(encoder, kbps: videoKbps, video.priority)
-            + Encoders.pixelFormat(encoder)
-            + Encoders.tags(encoder, extension: plan.fileExtension)
-            + audioCodec(plan)
-            + containerFlags(plan.container)
-            + [output]
+        var arguments: [String] = Ffmpeg.preamble + ["-i", input] + trackMaps
+        arguments += videoFilter(plan)
+        arguments += ["-threads", String(threads)]
+        arguments += Encoders.bitrate(encoder, kbps: videoKbps, video.priority)
+        arguments += Encoders.pixelFormat(encoder)
+        arguments += Encoders.tags(encoder, extension: plan.fileExtension)
+        arguments += audioCodec(plan)
+        arguments += containerFlags(plan.container)
+        arguments.append(output)
+        return arguments
     }
 
     static func audioOnlySource(_ input: String, _ output: String, audioKbps: Int) -> [String] {

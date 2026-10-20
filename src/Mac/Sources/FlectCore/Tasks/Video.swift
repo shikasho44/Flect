@@ -285,7 +285,9 @@ final class VideoThumbnail: VideoTask {
         var arguments = Ffmpeg.preamble + ["-ss", Formatting.number((time * 1000).rounded() / 1000), "-i", path, "-frames:v", "1"]
         if settings.maxWidth > 0 { arguments += ["-vf", "scale='min(\(settings.maxWidth),iw)':-2"] }
         if settings.format == .jpg {
-            arguments += ["-q:v", String(31 - min(max(settings.quality, 1), 100) * 29 / 100)]
+            let quality: Int = min(max(settings.quality, 1), 100)
+            let scale: Int = 31 - quality * 29 / 100
+            arguments += ["-q:v", String(scale)]
         }
         arguments.append(output)
 

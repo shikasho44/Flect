@@ -83,8 +83,10 @@ enum Quantizer {
                         if alpha == 0 {
                             key = transparentKey
                         } else {
-                            key = Int(pixels[offset] >> 3) | Int(pixels[offset + 1] >> 3) << 5 | Int(pixels[offset + 2] >> 3) << 10
-                                | (alpha >> 4) << 15
+                            let red: Int = Int(pixels[offset] >> 3)
+                            let green: Int = Int(pixels[offset + 1] >> 3) << 5
+                            let blue: Int = Int(pixels[offset + 2] >> 3) << 10
+                            key = red | green | blue | (alpha >> 4) << 15
                             let base = key * 4
                             sums[base] += Int(pixels[offset])
                             sums[base + 1] += Int(pixels[offset + 1])

@@ -83,9 +83,16 @@ public struct AnalyzeReport {
     public let elapsed: TimeInterval
 
     public static func build(_ roots: [String], _ scan: TreeScan, _ duplicates: [[ScannedFile]], elapsed: TimeInterval) -> AnalyzeReport {
-        let byType = Dictionary(grouping: scan.files) { $0.fileExtension.isEmpty ? "(no extension)" : $0.fileExtension }
-            .map { TypeShare(fileExtension: $0.key, count: $0.value.count, bytes: $0.value.reduce(0) { $0 + $1.size }) }
-            .sorted { $0.bytes != $1.bytes ? $0.bytes > $1.bytes : $0.fileExtension < $1.fileExtension }
+        let grouped: [String: [ScannedFile]] = Dictionary(grouping: scan.files) { (file: ScannedFile) -> String in
+            file.fileExtension.isEmpty ? "(no extension)" : file.fileExtension
+        }
+        let shares: [TypeShare] = grouped.map { (name: String, files: [ScannedFile]) -> TypeShare in
+            let bytes: Int64 = files.reduce(Int64(0)) { $0 + $1.size }
+            return TypeShare(fileExtension: name, count: files.count, bytes: bytes)
+        }
+        let byType = shares.sorted { (a: TypeShare, b: TypeShare) -> Bool in
+            a.bytes != b.bytes ? a.bytes > b.bytes : a.fileExtension < b.fileExtension
+        }
 
         let reclaimable = duplicates.reduce(Int64(0)) { total, group in
             total + group.reduce(0) { $0 + $1.size } - group[0].size
