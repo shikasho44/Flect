@@ -73,9 +73,11 @@ enum Harness {
         guard let request = Request(verb: verb, paths: paths) else { throw EvalFailure(description: "bad request \(verb)") }
         guard let task = Factory.create(request) else { throw EvalFailure(description: "unknown task \(verb)") }
         let progress = RecordingProgress()
-        guard await task.configure(ui) else { throw EvalFailure(description: "configure declined for \(verb)") }
-        try await task.run(progress)
-        await task.present(ui)
+        guard await task.scoped({ await task.configure(ui) }) else {
+            throw EvalFailure(description: "configure declined for \(verb)")
+        }
+        try await task.scoped { try await task.run(progress) }
+        await task.scoped { await task.present(ui) }
         if expectClean, !progress.errors.isEmpty {
             throw EvalFailure(description: "\(verb) reported: \(progress.errors.joined(separator: " | "))")
         }

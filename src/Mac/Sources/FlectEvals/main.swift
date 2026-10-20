@@ -97,6 +97,7 @@ ImageEvals.register(suite)
 VideoEvals.register(suite)
 FolderEvals.register(suite)
 DocumentEvals.register(suite)
+OutputEvals.register(suite)
 await suite.run(filters: filters, categories: categories)
 
 if !categories.contains("keep") { try? FileManager.default.removeItem(atPath: work) }

@@ -62,6 +62,8 @@
 
 设置保存在 `~/Library/Application Support/Flect/settings.json`，格式与 Windows 版的 `settings.json` 相同。
 
+在设置的 **输出** 中，可以为每个功能指定结果的保存文件夹（与 Windows 版相同）。未设置的功能会保存到原文件旁边。`./Compressed` 这样的相对路径以原文件所在的文件夹为基准，绝对路径和 `~` 可直接使用。
+
 ## 系统要求
 
 | | |

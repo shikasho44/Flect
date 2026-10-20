@@ -88,7 +88,7 @@ final class VideoResize: VideoTask {
     override func process(_ path: String, _ progress: TaskProgress) async throws {
         let info = try await Media.read(path)
         try requireVideo(info)
-        let output = OutputPath.derive(path, suffix: "_resized")
+        let output = try OutputPath.derive(path, suffix: "_resized")
         try await filter(path, output, scaleFilter(), info, progress, label: Loc.t("label.resizing"))
     }
 
@@ -121,7 +121,7 @@ final class VideoRotate: VideoTask {
     override func process(_ path: String, _ progress: TaskProgress) async throws {
         let info = try await Media.read(path)
         try requireVideo(info)
-        let output = OutputPath.derive(path, suffix: "_rotated")
+        let output = try OutputPath.derive(path, suffix: "_rotated")
         try await filter(path, output, rotateFilter(), info, progress, label: Loc.t("label.rotating"))
     }
 
@@ -157,7 +157,7 @@ final class VideoConvert: VideoTask {
         }
 
         let ext = "." + target.lowercased()
-        let output = OutputPath.derive(path, extension: ext)
+        let output = try OutputPath.derive(path, extension: ext)
         let copyArguments = target == "M4A" ? ["-vn", "-c:a", "copy"] : ["-c", "copy"]
 
         func encodeArguments(_ encoder: EncoderChoice) -> [String] {
@@ -195,7 +195,7 @@ final class VideoConvert: VideoTask {
     }
 
     private func toGif(_ path: String, _ info: MediaInfo, _ progress: TaskProgress) async throws {
-        let output = OutputPath.derive(path, extension: ".gif")
+        let output = try OutputPath.derive(path, extension: ".gif")
         let palette = OutputPath.scratch(beside: output, extension: ".png")
         defer { OutputPath.safeDelete(palette) }
 
@@ -235,7 +235,7 @@ final class VideoTrim: VideoTask {
         let length = end - start
         if length <= 0 { throw FlectError(Loc.t("dialog.trim.backwards")) }
 
-        let output = OutputPath.derive(path, suffix: "_trimmed")
+        let output = try OutputPath.derive(path, suffix: "_trimmed")
         let ext = "." + (output as NSString).pathExtension.lowercased()
         let seek = Ffmpeg.preamble + ["-ss", seconds(start), "-i", path, "-t", seconds(length)]
 
@@ -280,7 +280,7 @@ final class VideoThumbnail: VideoTask {
 
         let settings = preferences.thumbnail
         let format = settings.format == .jpg ? "jpg" : "png"
-        let output = OutputPath.derive(path, suffix: "_thumbnail", extension: "." + format)
+        let output = try OutputPath.derive(path, suffix: "_thumbnail", extension: "." + format)
 
         var arguments = Ffmpeg.preamble + ["-ss", Formatting.number((time * 1000).rounded() / 1000), "-i", path, "-frames:v", "1"]
         if settings.maxWidth > 0 { arguments += ["-vf", "scale='min(\(settings.maxWidth),iw)':-2"] }
@@ -328,7 +328,7 @@ final class VideoCompress: VideoTask {
         if info.duration <= 0 { throw FlectError(Loc.t("msg.noDuration")) }
 
         let plan = Planner.build(info, targetBytes: target, container: Containers.resolve(preferences))
-        let destination = OutputPath.derive(path, suffix: "_compressed", extension: info.hasVideo ? plan.fileExtension : ".m4a")
+        let destination = try OutputPath.derive(path, suffix: "_compressed", extension: info.hasVideo ? plan.fileExtension : ".m4a")
 
         let scratch = try ScratchDirectory(beside: destination)
         defer { scratch.dispose() }
@@ -387,7 +387,7 @@ final class AudioConvert: BatchTask {
 
     override func process(_ path: String, _ progress: TaskProgress) async throws {
         let info = try await Media.read(path)
-        let output = OutputPath.derive(path, extension: AudioFormat.fileExtension(target))
+        let output = try OutputPath.derive(path, extension: AudioFormat.fileExtension(target))
         try await OutputPath.producing(output) {
             try await Ffmpeg.run(Ffmpeg.preamble + ["-i", path, "-vn"] + AudioFormat.encoder(target) + [output], progress,
                                  label: Loc.f("label.convertingTo", target), duration: info.duration)
@@ -409,7 +409,7 @@ final class VideoExtractAudio: BatchTask {
         let info = try await Media.read(path)
         if !info.hasAudio { throw FlectError(Loc.t("msg.noAudioTrack")) }
 
-        let output = OutputPath.derive(path, extension: AudioFormat.fileExtension(target))
+        let output = try OutputPath.derive(path, extension: AudioFormat.fileExtension(target))
         let label = Loc.f("label.extracting", target)
 
         try await OutputPath.producing(output) {

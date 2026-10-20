@@ -21,9 +21,12 @@ public enum FileSystem {
 }
 
 public enum OutputPath {
+    // The task whose output folder applies; FlectTask.scoped sets it around everything a task does.
+    @TaskLocal public static var taskId: String?
+
     public static func derive(_ source: String, suffix: String = "", extension ext: String? = nil,
-                              avoiding taken: Set<String> = []) -> String {
-        let directory = (source as NSString).deletingLastPathComponent
+                              avoiding taken: Set<String> = []) throws -> String {
+        let directory = try directory(for: source)
         let stem = ((source as NSString).lastPathComponent as NSString).deletingPathExtension + suffix
 
         var extensionText = ext ?? {
@@ -41,8 +44,8 @@ public enum OutputPath {
         return candidate
     }
 
-    public static func deriveDirectory(_ source: String, stem: String? = nil, suffix: String = "") -> String {
-        let directory = (source as NSString).deletingLastPathComponent
+    public static func deriveDirectory(_ source: String, stem: String? = nil, suffix: String = "") throws -> String {
+        let directory = try directory(for: source)
         let base = (stem ?? ((source as NSString).lastPathComponent as NSString).deletingPathExtension) + suffix
 
         var candidate = (directory as NSString).appendingPathComponent(base)
@@ -52,6 +55,46 @@ public enum OutputPath {
             number += 1
         }
         return candidate
+    }
+
+    // Beside the source unless Settings › Output names a folder for the current task. Relative folders start from the
+    // source's folder; ~, $NAME and %NAME% are expanded so a settings file written on Windows keeps working.
+    public static func directory(for source: String) throws -> String {
+        let fallback = (source as NSString).deletingLastPathComponent
+        guard let key = OutputCatalog.key(for: taskId), var text = Settings.current.output.folders[key] else { return fallback }
+
+        text = text.trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+        if text.isEmpty { return fallback }
+
+        let expanded = (expandVariables(text) as NSString).expandingTildeInPath
+        let joined = expanded.hasPrefix("/") ? expanded : (fallback as NSString).appendingPathComponent(expanded)
+        let target = URL(fileURLWithPath: joined).standardizedFileURL.path
+
+        if FileSystem.isDirectory(source), isInside(target, source) {
+            throw FlectError(Loc.t("msg.outputInsideSource"))
+        }
+        try FileManager.default.createDirectory(atPath: target, withIntermediateDirectories: true)
+        return target
+    }
+
+    static func expandVariables(_ text: String) -> String {
+        let environment = ProcessInfo.processInfo.environment
+        var result = text
+        for pattern in [#"%([A-Za-z_][A-Za-z0-9_]*)%"#, #"\$\{([A-Za-z_][A-Za-z0-9_]*)\}"#, #"\$([A-Za-z_][A-Za-z0-9_]*)"#] {
+            let regex = try! NSRegularExpression(pattern: pattern)
+            for match in regex.matches(in: result, range: NSRange(result.startIndex..., in: result)).reversed() {
+                guard let whole = Range(match.range, in: result), let name = Range(match.range(at: 1), in: result),
+                      let value = environment[String(result[name])] else { continue }
+                result.replaceSubrange(whole, with: value)
+            }
+        }
+        return result
+    }
+
+    private static func isInside(_ target: String, _ source: String) -> Bool {
+        let root = URL(fileURLWithPath: source).standardizedFileURL.path
+        let path = URL(fileURLWithPath: target).standardizedFileURL.path
+        return path.caseInsensitiveCompare(root) == .orderedSame || path.lowercased().hasPrefix(root.lowercased() + "/")
     }
 
     public static func scratch(beside finalPath: String, extension ext: String) -> String {

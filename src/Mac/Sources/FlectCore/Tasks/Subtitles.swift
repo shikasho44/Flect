@@ -85,7 +85,7 @@ final class MediaSubtitles: FlectTask {
                 continue
             }
 
-            let output = OutputPath.derive(path, extension: ext, avoiding: Set(jobs.map(\.output)))
+            let output = try OutputPath.derive(path, extension: ext, avoiding: Set(jobs.map(\.output)))
             let wav = OutputPath.scratch(beside: output, extension: ".wav")
             do {
                 try await Ffmpeg.run(Ffmpeg.preamble + ["-i", path, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", wav],

@@ -28,7 +28,7 @@ final class SettingsStore: ObservableObject {
 }
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case general, folder, video, image, text, ocr, code
+    case general, folder, video, image, text, ocr, code, output
 
     var id: String { rawValue }
 
@@ -43,6 +43,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         case .text: return "doc.text"
         case .ocr: return "text.viewfinder"
         case .code: return "chevron.left.forwardslash.chevron.right"
+        case .output: return "square.and.arrow.down"
         }
     }
 }
@@ -89,6 +90,7 @@ struct SettingsView: View {
                 case .text: TextPage(store: store)
                 case .ocr: OcrPage(store: store)
                 case .code: CodePage(store: store)
+                case .output: OutputPage(store: store)
                 }
             }
             .formStyle(.grouped)
@@ -725,5 +727,73 @@ struct CodePage: View {
             let found = await Task.detached { try? Tools.java() }.value
             java = found.map { Loc.f("settings.code.java.found", $0) } ?? Loc.t("settings.code.java.missing")
         }
+    }
+}
+
+struct OutputPage: View {
+    @ObservedObject var store: SettingsStore
+    @State private var adding = ""
+
+    private var chosen: [OutputFeature] {
+        OutputCatalog.features.filter { store.settings.output.folders[$0.key] != nil }
+    }
+
+    private var remaining: [OutputFeature] {
+        OutputCatalog.features.filter { store.settings.output.folders[$0.key] == nil }
+    }
+
+    var body: some View {
+        Form {
+            Section(Loc.t("settings.output.title")) {
+                ForEach(chosen, id: \.key) { feature in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(feature.label)
+                        HStack {
+                            TextField("", text: folder(feature.key), prompt: Text(Loc.t("settings.output.example")))
+                                .labelsHidden()
+                                .textFieldStyle(.roundedBorder)
+                            Button(Loc.t("common.browse")) { browse(feature.key) }
+                            Button(Loc.t("common.default")) { store.settings.output.folders[feature.key] = nil }
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+                HStack {
+                    Picker("", selection: $adding) {
+                        ForEach(remaining, id: \.key) { feature in Text(feature.label).tag(feature.key) }
+                    }
+                    .labelsHidden()
+                    .disabled(remaining.isEmpty)
+                    Button(Loc.t("settings.output.add")) {
+                        store.settings.output.folders[adding] = ""
+                        adding = remaining.first?.key ?? ""
+                    }
+                    .disabled(remaining.isEmpty || adding.isEmpty)
+                }
+                Hint(Loc.t("settings.output.hint"))
+            }
+        }
+        .onAppear { adding = remaining.first?.key ?? "" }
+        // Like the Windows page, a row left empty goes back to writing beside the original.
+        .onDisappear {
+            store.settings.output.folders = store.settings.output.folders.filter {
+                !$0.value.trimmingCharacters(in: .whitespaces).isEmpty
+            }
+        }
+    }
+
+    private func folder(_ key: String) -> Binding<String> {
+        Binding(get: { store.settings.output.folders[key] ?? "" },
+                set: { store.settings.output.folders[key] = $0 })
+    }
+
+    private func browse(_ key: String) {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        let current = ((store.settings.output.folders[key] ?? "") as NSString).expandingTildeInPath
+        if current.hasPrefix("/"), FileSystem.isDirectory(current) { panel.directoryURL = URL(fileURLWithPath: current) }
+        if panel.runModal() == .OK, let url = panel.url { store.settings.output.folders[key] = url.path }
     }
 }

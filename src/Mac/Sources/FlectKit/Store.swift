@@ -15,12 +15,14 @@ public enum Store {
         init?(intValue: Int) { nil }
     }
 
+    // Dictionary keys such as "video.resize" pass through these too; they are data, not property names, and the
+    // Windows version matches them exactly, so anything with a dot is left as written.
     private static func pascal(_ name: String) -> String {
-        name.prefix(1).uppercased() + name.dropFirst()
+        name.contains(".") ? name : name.prefix(1).uppercased() + name.dropFirst()
     }
 
     private static func camel(_ name: String) -> String {
-        name.prefix(1).lowercased() + name.dropFirst()
+        name.contains(".") ? name : name.prefix(1).lowercased() + name.dropFirst()
     }
 
     static func makeEncoder() -> JSONEncoder {
@@ -67,6 +69,9 @@ public enum Store {
         guard let baseObject = base as? [String: Any], let overlayObject = overlay as? [String: Any] else {
             return overlay is NSNull ? base : overlay
         }
+        // An empty default is a map such as Output.Folders, not a settings group: keep its string entries, which a
+        // group's unknown-key filtering below would otherwise drop.
+        if baseObject.isEmpty { return overlayObject.filter { $0.value is String } }
         var result = baseObject
         for (key, value) in overlayObject {
             if let existing = baseObject[key] {

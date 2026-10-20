@@ -41,23 +41,23 @@ enum TaskRunner {
         defer { AppLifecycle.shared.taskEnded() }
 
         let ui = AppInteraction()
-        guard await task.configure(ui) else { return }
+        guard await task.scoped({ await task.configure(ui) }) else { return }
 
         if !task.showsProgress {
             do {
-                try await task.run(SilentProgress())
+                try await task.scoped { try await task.run(SilentProgress()) }
             } catch {
                 Dialog.error(describe(error))
                 return
             }
-            await task.present(ui)
+            await task.scoped { await task.present(ui) }
             return
         }
 
         let model = ProgressModel(heading: task.title)
         let reporter = ProgressReporter(model)
         var window: NSWindow?
-        let worker = Task.detached(priority: .userInitiated) { try await task.run(reporter) }
+        let worker = Task.detached(priority: .userInitiated) { try await task.scoped { try await task.run(reporter) } }
         model.onCancel = { worker.cancel() }
         model.onClose = { window?.close() }
         window = WindowRegistry.shared.show("\(Branding.name) - \(task.title)", size: NSSize(width: 480, height: 170),
@@ -77,7 +77,7 @@ enum TaskRunner {
         }
 
         await Task.yield()
-        if outcome == .succeeded { await task.present(ui) }
+        if outcome == .succeeded { await task.scoped { await task.present(ui) } }
         if model.finish(outcome, summary: outcome == .succeeded ? task.summary : nil) { window?.close() }
     }
 }

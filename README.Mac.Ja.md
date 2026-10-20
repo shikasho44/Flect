@@ -62,6 +62,8 @@ Windows 版と同じ機能を、同じメニュー・設定・出力ファイル
 
 設定は `~/Library/Application Support/Flect/settings.json` に保存されます。形式は Windows 版の `settings.json` と同じです。
 
+設定の **出力** で、機能ごとに結果の保存先フォルダを決められます（Windows 版と同じ）。設定しない機能は元ファイルの隣に保存します。`./Compressed` のような相対パスは元ファイルのあるフォルダが基準で、絶対パスと `~` もそのまま使えます。
+
 ## 動作環境
 
 | | |

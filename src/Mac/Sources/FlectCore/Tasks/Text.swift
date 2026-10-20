@@ -13,7 +13,7 @@ final class TextEncode: BatchTask {
 
     override func process(_ path: String, _ progress: TaskProgress) async throws {
         let (text, _) = try TextFile.read(path)
-        let output = OutputPath.derive(path, suffix: suffix)
+        let output = try OutputPath.derive(path, suffix: suffix)
 
         let data: Data
         switch target {
@@ -60,7 +60,7 @@ final class TextLineEndings: BatchTask {
         let normalised = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
         let converted = target == "LF" ? normalised : normalised.replacingOccurrences(of: "\n", with: "\r\n")
 
-        let output = OutputPath.derive(path, suffix: target == "LF" ? "_lf" : "_crlf")
+        let output = try OutputPath.derive(path, suffix: target == "LF" ? "_lf" : "_crlf")
         let data = try TextFile.encode(converted, with: encoding)
         try await OutputPath.producing(output) {
             try data.write(to: URL(fileURLWithPath: output))
@@ -85,7 +85,7 @@ final class TextConvert: BatchTask {
             ? text
             : try DataFormats.render(try DataFormats.parse(source, text, progress: progress, path: path), as: target)
 
-        let output = OutputPath.derive(path, extension: "." + target.lowercased())
+        let output = try OutputPath.derive(path, extension: "." + target.lowercased())
         let data = target == "CSV" ? Data([0xEF, 0xBB, 0xBF]) + Data(converted.utf8) : Data(converted.utf8)
         try await OutputPath.producing(output) {
             try data.write(to: URL(fileURLWithPath: output))
@@ -108,7 +108,7 @@ final class JsonFormat: BatchTask {
         let tree = try JSONParser.parse(text, lenient: true)
         let formatted = sortKeys ? SortJson.sort(tree, settings: Settings.current.text.jsonSort) : tree
 
-        let output = OutputPath.derive(path, suffix: sortKeys ? "_sorted" : "_pretty")
+        let output = try OutputPath.derive(path, suffix: sortKeys ? "_sorted" : "_pretty")
         try await OutputPath.producing(output) {
             try Data(JSONWriter.write(formatted).utf8).write(to: URL(fileURLWithPath: output))
         }

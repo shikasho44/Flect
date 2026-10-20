@@ -41,6 +41,11 @@ open class FlectTask {
     open var summary: String? { nil }
 
     open func present(_ ui: Interaction) async {}
+
+    // Output folders are chosen per feature, so run configure, run and present inside this.
+    public func scoped<T>(_ body: () async throws -> T) async rethrows -> T {
+        try await OutputPath.$taskId.withValue(request.id, operation: body)
+    }
 }
 
 open class BatchTask: FlectTask {

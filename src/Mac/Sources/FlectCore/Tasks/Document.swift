@@ -52,7 +52,7 @@ final class PdfMerge: FlectTask {
             }
         }
 
-        let destination = OutputPath.derive(sources[0], suffix: "_merged", extension: ".pdf")
+        let destination = try OutputPath.derive(sources[0], suffix: "_merged", extension: ".pdf")
         try await OutputPath.producing(destination) {
             guard merged.write(to: URL(fileURLWithPath: destination)) else { throw FlectError("The merged PDF could not be written.") }
         }
@@ -85,7 +85,7 @@ final class PdfConvert: BatchTask {
     }
 
     private func extractText(_ document: PDFDocument, _ path: String) async throws {
-        let output = OutputPath.derive(path, extension: ".txt")
+        let output = try OutputPath.derive(path, extension: ".txt")
         var text = ""
         for index in 0..<document.pageCount {
             try Task.checkCancellation()
@@ -110,7 +110,7 @@ final class PdfConvert: BatchTask {
             guard let page = document.page(at: index) else { continue }
 
             let suffix = pages == 1 ? "" : "_p" + String(index + 1).leftPadded(width, with: "0")
-            let output = OutputPath.derive(path, suffix: suffix, extension: format == .jpeg ? ".jpg" : ".png")
+            let output = try OutputPath.derive(path, suffix: suffix, extension: format == .jpeg ? ".jpg" : ".png")
             let image = PdfRenderer.render(page, dpi: PdfConvert.dpi)
             try await OutputPath.producing(output) {
                 try ImageCodec.encode(image, as: format, quality: format == .jpeg ? 0.9 : nil)
@@ -150,7 +150,7 @@ final class JarDecompile: BatchTask {
 
         let root = Settings.current.code.decompile.outputPath.trimmingCharacters(in: .whitespaces)
         let stem = ((path as NSString).lastPathComponent as NSString).deletingPathExtension
-        let destination = root.isEmpty
+        let destination = try root.isEmpty
             ? OutputPath.deriveDirectory(path)
             : OutputPath.deriveDirectory(((root as NSString).expandingTildeInPath as NSString).appendingPathComponent(stem))
         try FileManager.default.createDirectory(atPath: (destination as NSString).deletingLastPathComponent,

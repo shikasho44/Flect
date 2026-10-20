@@ -62,6 +62,8 @@ Converted files go next to the originals and are never overwritten - a name that
 
 Settings live in `~/Library/Application Support/Flect/settings.json`, in the same format as the Windows `settings.json`.
 
+**Output** in Settings chooses where each feature writes its results, as on Windows. Leave a feature out to write beside the original. A relative folder such as `./Compressed` starts from the original's folder; absolute paths and `~` work as written.
+
 ## Requirements
 
 | | |

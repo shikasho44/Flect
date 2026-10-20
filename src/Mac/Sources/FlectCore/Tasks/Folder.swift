@@ -311,7 +311,7 @@ final class ArchiveExtract: BatchTask {
         progress.indeterminate()
         progress.status(Loc.f("label.extracting", fileName(path)))
 
-        let destination = OutputPath.deriveDirectory(path, stem: Archive.stem(path))
+        let destination = try OutputPath.deriveDirectory(path, stem: Archive.stem(path))
         let warnings = try await Archive.extract(path, into: destination)
         Archive.report(warnings, name: fileName(path), progress: progress)
     }

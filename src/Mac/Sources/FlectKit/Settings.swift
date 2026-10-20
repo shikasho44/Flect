@@ -331,6 +331,12 @@ public struct CodeSettings: Codable, Equatable {
     public init() {}
 }
 
+public struct OutputSettings: Codable, Equatable {
+    // Feature key (OutputCatalog) to the folder its results go to. Missing or empty means beside the original.
+    public var folders: [String: String] = [:]
+    public init() {}
+}
+
 public struct Settings: Codable, Equatable {
     public static let fileName = "settings.json"
     private static let schemaVersion = 1
@@ -343,6 +349,7 @@ public struct Settings: Codable, Equatable {
     public var text = TextSettings()
     public var ocr = OcrSettings()
     public var code = CodeSettings()
+    public var output = OutputSettings()
 
     public init() {}
 

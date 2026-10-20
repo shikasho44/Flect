@@ -26,7 +26,7 @@ class ImageTask: BatchTask {
     }
 
     override func process(_ path: String, _ progress: TaskProgress) async throws {
-        let output = OutputPath.derive(path, suffix: suffix, extension: outputExtension)
+        let output = try OutputPath.derive(path, suffix: suffix, extension: outputExtension)
         let format = ImageFormat(extension: (output as NSString).pathExtension) ?? .png
         let loaded = try ImageCodec.load(path)
         try Task.checkCancellation()
@@ -126,7 +126,7 @@ final class ImageStripMetadata: BatchTask {
     override var title: String { Loc.t("menu.image.strip") }
 
     override func process(_ path: String, _ progress: TaskProgress) async throws {
-        let output = OutputPath.derive(path, suffix: "_clean")
+        let output = try OutputPath.derive(path, suffix: "_clean")
         try await OutputPath.producing(output) {
             try MetadataStripper.strip(path, to: output, settings: Settings.current.image.metadata)
         }
@@ -138,7 +138,7 @@ final class ImageChromaKey: BatchTask {
 
     override func process(_ path: String, _ progress: TaskProgress) async throws {
         let settings = Settings.current.image
-        let output = OutputPath.derive(path, suffix: "_keyed", extension: ".png")
+        let output = try OutputPath.derive(path, suffix: "_keyed", extension: ".png")
         let image = try ImageCodec.load(path).upright
         try Task.checkCancellation()
 
@@ -201,7 +201,7 @@ final class ImageCompress: BatchTask {
         let format = loaded.format ?? ImageFormat(extension: (path as NSString).pathExtension) ?? .png
         let attempt = try squeeze(loaded.upright, format: format)
 
-        let output = OutputPath.derive(path, suffix: "_compressed", extension: attempt.asWebp ? ".webp" : nil)
+        let output = try OutputPath.derive(path, suffix: "_compressed", extension: attempt.asWebp ? ".webp" : nil)
         try await OutputPath.producing(output) {
             try attempt.data.write(to: URL(fileURLWithPath: output))
         }
@@ -329,7 +329,7 @@ final class ImageOcr: BatchTask {
             return
         }
 
-        let output = OutputPath.derive(path, suffix: "_ocr", extension: ".txt")
+        let output = try OutputPath.derive(path, suffix: "_ocr", extension: ".txt")
         try await OutputPath.producing(output) {
             try TextFile.encode(text, as: settings.encoding).write(to: URL(fileURLWithPath: output))
         }
