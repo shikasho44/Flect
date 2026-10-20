@@ -85,6 +85,7 @@ if [[ ! -f $work/AppIcon.icns || $icon_source -nt $work/AppIcon.icns ]]; then
   sips -z 32 32 $icon_source --out $work/MenuIcon@2x.png >/dev/null
 fi
 cp $work/AppIcon.icns $app/Contents/Resources/AppIcon.icns
+cp -R $package/Resources/App/*.lproj $app/Contents/Resources/
 cp $work/MenuIcon.png $work/MenuIcon@2x.png $extension/Contents/Resources/
 
 cp $repo_root/LICENSE $app/Contents/Resources/LICENSE

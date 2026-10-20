@@ -232,6 +232,17 @@ enum VideoEvals {
             try expect(info.audioCodec == "mp3", "codec \(info.audioCodec ?? "-")")
         }
 
+        for target in ["MP3", "M4A", "OGG", "WMA"] {
+            suite.test("Audio convert from a 16 kHz mono voice memo to \(target)") {
+                Harness.useSettings()
+                let folder = try Paths.folder("audio-convert-voice-\(target)")
+                let input = try await Fixtures.copy("speech.wav", to: folder)
+                try await Harness.run("audio.convert?to=\(target)", [input])
+                let info = try await Media.read(Paths.join(folder, "speech.\(target.lowercased())"))
+                try expect(info.hasAudio && info.duration > 1, "duration \(info.duration)")
+            }
+        }
+
         suite.test("Cancelling an encode leaves nothing behind") {
             Harness.useSettings { $0.video.priority = .quality }
             let folder = try Paths.folder("video-cancel")

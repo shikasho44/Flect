@@ -60,6 +60,22 @@ var categories: Set<String> = ["core", "ai"]
 for flag in arguments where flag.hasPrefix("--") { categories.insert(String(flag.dropFirst(2))) }
 let filters = arguments.filter { !$0.hasPrefix("--") }
 
+if let index = arguments.firstIndex(of: "--demo"), index + 1 < arguments.count {
+    if ProcessInfo.processInfo.environment["FLECT_DEPS"] == nil, let dependencies = locateDependencies() {
+        setenv("FLECT_DEPS", dependencies, 1)
+    }
+    let appIndex = arguments.firstIndex(of: "--app")
+    let app = appIndex.flatMap { $0 + 1 < arguments.count ? arguments[$0 + 1] : nil }
+        ?? (NSHomeDirectory() as NSString).appendingPathComponent("Applications/Flect.app")
+    do {
+        try await Demo.run(appPath: app, output: arguments[index + 1])
+        exit(0)
+    } catch {
+        print("Demo failed: \(error)")
+        exit(1)
+    }
+}
+
 let work = (NSTemporaryDirectory() as NSString).appendingPathComponent("FlectEvals-\(ProcessInfo.processInfo.processIdentifier)")
 try? FileManager.default.createDirectory(atPath: work, withIntermediateDirectories: true)
 setenv("FLECT_HOME", (work as NSString).appendingPathComponent("home"), 1)

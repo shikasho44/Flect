@@ -73,7 +73,12 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Flect…</string>
+				<string>Process with Flect…</string>
+			</dict>
+			<key>NSKeyEquivalent</key>
+			<dict>
+				<key>default</key>
+				<string>J</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>showActions</string>

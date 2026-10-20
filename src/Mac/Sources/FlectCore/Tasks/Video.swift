@@ -355,7 +355,9 @@ enum AudioFormat {
         switch target {
         case "MP3": return ["-c:a", "libmp3lame", "-b:a", "\(lossyKbps)k"]
         case "M4A", "AAC": return ["-c:a", "aac", "-b:a", "\(lossyKbps)k"]
-        case "OGG": return ["-c:a", "libvorbis", "-b:a", "\(lossyKbps)k"]
+        // A fixed 192 kbps is more than libvorbis accepts for low sample rates (a 16 kHz voice memo fails to open the
+        // encoder), so use its quality scale: about 192 kbps for 44.1 kHz stereo, and valid for every input.
+        case "OGG": return ["-c:a", "libvorbis", "-q:a", "6"]
         case "WMA": return ["-c:a", "wmav2", "-b:a", "\(lossyKbps)k"]
         case "WAV": return ["-c:a", "pcm_s16le"]
         case "AIF", "AIFF": return ["-c:a", "pcm_s16be"]

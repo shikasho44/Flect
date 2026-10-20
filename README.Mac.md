@@ -18,7 +18,13 @@ The macOS port of [Flect](/README.md) by [Konayukiw](https://github.com/Konayuki
 2. Open Flect once. Its settings window appears.
 3. In **General → Finder**, choose **Open Extension Settings** and turn on **Flect**.
 
-After that, right-click files or folders in Finder and choose **Flect**. You can also drop files on the Flect icon in the Dock, or press **⌘O** in Flect, to pick an action in a window.
+After that, right-click files or folders in Finder and choose **Flect**.
+
+The same actions are also available without the Flect menu. Each of these opens a window where you pick the action:
+
+- Select files in Finder and press **⇧⌘J**, or right-click and choose **Services › Process with Flect…** (in **Quick Actions** on some versions). This works even when the Finder extension is not turned on. You can change the shortcut in **System Settings › Keyboard › Keyboard Shortcuts › Services**.
+- Drop files on the Flect icon in the Dock, or on Flect.app after you ⌘-drag it into the Finder toolbar.
+- Press **⌘O** in Flect and choose files.
 
 > **File access** - the first time Flect works on files in Desktop, Documents or Downloads, macOS asks whether Flect may access that folder. Allow it once per folder.
 
