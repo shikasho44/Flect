@@ -4,6 +4,8 @@
 
 **[日本語](/README.Ja.md) / English / [简体中文](/README.Zh.md)**
 
+On a Mac? See **[Flect for Mac](/README.Mac.md)**.
+
 **Right-click any files or folders on the Windows Explorer to convert, compress, resize and more!**
 
 You don't have to search for converter on the browser or compress using Video Editor.

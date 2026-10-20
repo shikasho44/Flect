@@ -185,6 +185,7 @@ Every contribution must adhere to the following principles:
   - Modern Windows 11 context menu (`src/Shell/Modern`)
   - Worker process catalog (`src/App/Main/Process/MenuCatalog.cs`)
   - Settings page toggle lists (`src/App/Gui/Pages/General.xaml`)
+  - macOS catalog and Finder menu (`src/Mac/Sources/FlectKit/Menu/MenuCatalog.swift` and `MenuBuilder.swift`)
 
 ### 5. Third-Party Dependencies and Licenses
 
@@ -208,6 +209,13 @@ Remove feature123
 Fix #123
 Improve #123
 Merge pull request #123 from owner/branch
+
+### 8. macOS
+
+- The Mac port lives in `src/Mac` (Swift) and `scripts/mac`. See [README.Mac.md](README.Mac.md) for the layout.
+- It needs only the Xcode Command Line Tools. Run `scripts/mac/fetch.sh` once, then `scripts/mac/test.sh` before submitting.
+- The Mac string tables are generated from `src/App/Main/I18n` by `python3 scripts/mac/sync-strings.py`. Put Mac-only wording in `src/Mac/Sources/FlectKit/I18n/Strings+Mac.swift`, in all three languages.
+- Mac components and their licences are documented in `src/Mac/NOTICES.Mac.md`.
 
 ---
 

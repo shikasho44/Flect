@@ -6,5 +6,7 @@
 **/bin/
 **/obj/
 *.vcxproj.user
+**/.build/
+**/.swiftpm/
 
 AGENTS.md

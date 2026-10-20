@@ -1,0 +1,46 @@
+name: macOS
+
+on:
+  push:
+    branches: [main, macos]
+    paths: ['src/Mac/**', 'scripts/mac/**', 'deps/**', 'src/Web/assets/Flect.png', '.github/workflows/mac.yml']
+  pull_request:
+    paths: ['src/Mac/**', 'scripts/mac/**', 'deps/**', 'src/Web/assets/Flect.png', '.github/workflows/mac.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mac-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build, evaluate and package
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Restore the bundled tools
+        uses: actions/cache@v6
+        with:
+          path: dependencies/mac
+          key: mac-deps-${{ runner.arch }}-${{ hashFiles('scripts/mac/build-ffmpeg.sh', 'scripts/mac/fetch.sh') }}
+
+      - name: Fetch ffmpeg and cfr
+        run: scripts/mac/fetch.sh
+
+      - name: Build Flect.app
+        run: scripts/mac/build.sh
+
+      - name: Run the evals
+        run: scripts/mac/test.sh
+
+      - name: Package the disk image
+        run: scripts/mac/package.sh
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Flect-mac
+          path: dist/mac/*.dmg

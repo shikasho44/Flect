@@ -9,6 +9,8 @@ Flect itself is licensed under the **Apache License, Version 2.0**; the full
 text of that license is provided in the `LICENSE` file at the root of this
 repository.
 
+The components of the macOS port are listed in `src/Mac/NOTICES.Mac.md`.
+
 ## Components
 
 | Component | Version | License |
