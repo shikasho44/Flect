@@ -28,6 +28,9 @@ jobs:
           path: dependencies/mac
           key: mac-deps-${{ runner.arch }}-${{ hashFiles('scripts/mac/build-ffmpeg.sh', 'scripts/mac/fetch.sh') }}
 
+      - name: Show the toolchain
+        run: xcodebuild -version && swift --version
+
       - name: Fetch ffmpeg and cfr
         run: scripts/mac/fetch.sh
 

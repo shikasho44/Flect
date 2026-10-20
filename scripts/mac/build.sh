@@ -10,6 +10,14 @@
 
 set -euo pipefail
 
+# Hides build chatter, but shows it when the command fails.
+quiet() {
+  local log
+  log=$(mktemp)
+  if ! "$@" >$log 2>&1; then cat $log >&2; rm -f $log; return 1; fi
+  rm -f $log
+}
+
 repo_root=${0:A:h:h:h}
 package=$repo_root/src/Mac
 configuration=${1:-release}
@@ -34,8 +42,8 @@ binaries=()
 for arch in $archs; do
   echo "Compiling $name $version for $arch ($configuration)"
   triple=(--triple $arch-apple-macosx14.0)
-  swift build --package-path $package --disable-sandbox -c $configuration $triple --product Flect >/dev/null
-  swift build --package-path $package --disable-sandbox -c $configuration $triple --product FlectFinder >/dev/null
+  quiet swift build --package-path $package --disable-sandbox -c $configuration $triple --product Flect
+  quiet swift build --package-path $package --disable-sandbox -c $configuration $triple --product FlectFinder
   binaries+=($(swift build --package-path $package --disable-sandbox -c $configuration $triple --show-bin-path))
 done
 
