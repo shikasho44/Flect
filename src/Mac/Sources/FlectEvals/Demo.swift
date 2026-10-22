@@ -225,6 +225,8 @@ enum Demo {
                 let windows = windowCount(pid)
                 if windows > 0, Date().timeIntervalSince(stableSince) > 5, !hasScratch(item.folder) {
                     item.windows = windows
+                    if !same(now, before) || expectsWindow(item.verb) { break }
+                    capture(pid, into: item.folder)
                     break
                 }
             } else if seenApp || Date().timeIntervalSince(started) > 15
@@ -263,6 +265,22 @@ enum Demo {
             if kill(pid, 0) == 0 { kill(pid, SIGKILL) }
         }
         try? await Task.sleep(nanoseconds: 300_000_000)
+    }
+
+    private static func expectsWindow(_ verb: String) -> Bool {
+        windows[verb] != nil || windows[verb.split(separator: "?").first.map(String.init) ?? verb] != nil
+    }
+
+    // Keeps a picture of an unexpected window (usually an error message) next to the case.
+    private static func capture(_ pid: pid_t, into folder: String) {
+        guard let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]],
+              let window = list.first(where: { ($0[kCGWindowOwnerPID as String] as? Int32) == pid }),
+              let id = window[kCGWindowNumber as String] as? Int else { return }
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+        task.arguments = ["-x", "-o", "-l", String(id), (folder as NSString).appendingPathComponent("window.png")]
+        try? task.run()
+        task.waitUntilExit()
     }
 
     private static func windowCount(_ pid: pid_t) -> Int {

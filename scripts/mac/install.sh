@@ -27,8 +27,13 @@ fi
 pkill -x Flect 2>/dev/null || true
 pkill -f "Flect.app/Contents/PlugIns/FlectFinder.appex" 2>/dev/null || true
 mkdir -p ${target:h}
-if [[ -d $target ]]; then mv $target ~/.Trash/Flect-$(date +%Y%m%d%H%M%S).app; fi
+# A copy left registered (in the Trash, or the build output) can still be picked to open flect:// links.
+if [[ -d $target ]]; then
+  $lsregister -u $target
+  mv $target ~/.Trash/Flect-$(date +%Y%m%d%H%M%S).app
+fi
 ditto $source $target
+$lsregister -u $source 2>/dev/null || true
 $lsregister -f -R $target
 pluginkit -a $target/Contents/PlugIns/FlectFinder.appex
 pluginkit -e use -i $identifier.finder

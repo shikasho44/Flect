@@ -12,6 +12,8 @@ permissions:
 
 jobs:
   reply:
+    # The replies describe the Windows version and its maintainer, so forks (such as Flect for Mac) skip them.
+    if: github.repository == 'Konayukiw/Flect'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v9

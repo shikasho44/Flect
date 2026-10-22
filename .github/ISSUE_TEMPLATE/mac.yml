@@ -1,0 +1,58 @@
+name: Report a Flect for Mac issue
+description: Something in the macOS version does not work as expected.
+title: "[Mac] "
+labels: ["bug", "macos"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue with Flect for Mac. Please check whether it has already been reported.
+        ⚠ Do **NOT** include any personal information in your report.
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      description: "Apple menu › About This Mac"
+      placeholder: "macOS 26.1"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Flect version
+      description: "Flect › About Flect"
+      placeholder: "1.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Chip
+      options:
+        - Apple silicon (M1 or later)
+        - Intel
+    validations:
+      required: true
+
+  - type: dropdown
+    id: route
+    attributes:
+      label: How did you start the action?
+      options:
+        - Finder right-click › Flect
+        - ⇧⌘J or Services › Process with Flect…
+        - Dropped on the Dock icon, or ⌘O in Flect
+        - Does not apply (installation, settings, update)
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What happened
+      description: The steps, the file type, what you expected, and what happened instead. Screenshots help.
+    validations:
+      required: true

@@ -129,7 +129,10 @@ final class ServiceProvider: NSObject {
 enum UpdateCheck {
     static func run(interactive: Bool) async -> String {
         do {
-            guard let update = try await Updater.check() else { return interactive ? Loc.t("update.latest") : "" }
+            guard let update = try await Updater.check() else {
+                return interactive ? Loc.t("settings.general.update.latest") : ""
+            }
+            if interactive { return confirm(update) }
             let alert = NSAlert()
             alert.messageText = Branding.name
             alert.informativeText = Loc.f("update.available", update.version, Branding.version)
@@ -141,8 +144,22 @@ enum UpdateCheck {
             }
             return Loc.f("update.available", update.version, Branding.version)
         } catch {
-            return interactive ? Loc.t("update.failed") : ""
+            return interactive ? Loc.t("settings.general.update.failed") : ""
         }
+    }
+
+    // The settings button, as in Windows 1.1. The dmg downloads through the browser, so macOS checks the new version
+    // the first time it opens instead of Flect replacing itself unseen.
+    private static func confirm(_ update: UpdateInfo) -> String {
+        let alert = NSAlert()
+        alert.messageText = Branding.name
+        alert.informativeText = Loc.f("settings.general.update.confirm", update.version)
+        alert.addButton(withTitle: Loc.t("update.download"))
+        alert.addButton(withTitle: Loc.t("common.cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return "" }
+        NSWorkspace.shared.open(update.download ?? update.page)
+        return Loc.f("update.opened", update.version)
     }
 }
 

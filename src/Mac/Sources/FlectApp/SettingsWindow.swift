@@ -167,6 +167,7 @@ struct GeneralPage: View {
     @ObservedObject var store: SettingsStore
     @State private var finderEnabled = FIFinderSyncController.isExtensionEnabled
     @State private var updateText = ""
+    @State private var checkingUpdate = false
 
     var body: some View {
         Form {
@@ -220,7 +221,15 @@ struct GeneralPage: View {
             Section(Loc.t("settings.general.update")) {
                 Toggle(Loc.t("settings.general.update.enable"), isOn: $store.settings.general.autoUpdate)
                 HStack {
-                    Button(Loc.t("update.check")) { Task { updateText = await UpdateCheck.run(interactive: true) } }
+                    Button(Loc.t("settings.general.update.check")) {
+                        checkingUpdate = true
+                        updateText = Loc.t("settings.general.update.checking")
+                        Task {
+                            updateText = await UpdateCheck.run(interactive: true)
+                            checkingUpdate = false
+                        }
+                    }
+                    .disabled(checkingUpdate)
                     Text(updateText).foregroundStyle(.secondary)
                     Spacer()
                 }
