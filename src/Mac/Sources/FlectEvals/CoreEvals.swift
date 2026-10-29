@@ -43,6 +43,14 @@ enum CoreEvals {
             try expect(!many.contains("video.trim") && !many.contains("video.compress.discord"), "\(many)")
         }
 
+        suite.test("Audio trim is offered for one audio file, first in the menu") {
+            let one = MenuBuilder.build(Selection.classify([item("/x/a.mp3")], probeGifs: false), settings: Settings())
+            try expect(one.first?.id == "audio.trim" && one.first?.verb == "audio.trim", "\(ids(one))")
+            let two = MenuBuilder.build(Selection.classify([item("/x/a.mp3"), item("/x/b.wav")], probeGifs: false),
+                                        settings: Settings())
+            try expect(!ids(two).contains("audio.trim"), "\(ids(two))")
+        }
+
         suite.test("Menu sorts out folders, packages, archives and text") {
             let folder = Selection.classify([item("/x/Photos", directory: true)], probeGifs: false)
             try expect(folder.category == .folder, "folder")

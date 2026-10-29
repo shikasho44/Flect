@@ -39,7 +39,7 @@ Everything the Windows version offers, with the same menu, settings and output n
 | | |
 | --- | --- |
 | **Images** | Resize, Compress to a target size, Rotate by any angle, Convert between PNG, JPG, WEBP, HEIC, ICO, GIF and SVG, OCR, Remove Metadata, Remove Background |
-| **Videos & audio** | Resize, Trim, Thumbnail, Subtitles, Compress to a target size (Discord preset included), Rotate, Convert between MP4, MOV, MKV, M4A, AVI, WEBM, FLV and GIF, Extract Audio to MP3, M4A, WAV, AIF, AIFF, AAC, OGG and WMA |
+| **Videos & audio** | Resize, Trim, Thumbnail, Subtitles, Compress to a target size (Discord preset included), Rotate, Convert between MP4, MOV, MKV, M4A, AVI, WEBM, FLV and GIF, Extract Audio to MP3, M4A, WAV, AIF, AIFF, AAC, OGG and WMA. Audio files: Trim, Convert, Subtitles |
 | **Folders** | Remove Duplicate, Remove Empty, Tree, Rename, Analyze, Compress to ZIP, 7z, TAR or tar.gz |
 | **Archives** | Extract ZIP, 7z, TAR, tar.gz and RAR |
 | **Text files** | PDF preview, merge and export to PNG, JPG or TXT; data format conversion (CSV, JSON, XML, HTML, MD, INI); UTF-8, UTF-8 (BOM), UTF-16 and Shift_JIS; CRLF and LF; JSON pretty print and key sorting; JAR decompilation |

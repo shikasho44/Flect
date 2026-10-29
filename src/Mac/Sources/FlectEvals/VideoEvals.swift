@@ -243,6 +243,31 @@ enum VideoEvals {
             }
         }
 
+        for accuracy in [TrimAccuracy.keyframe, .exact] {
+            suite.test("Audio trim keeps the chosen range (\(accuracy.rawValue))") {
+                Harness.useSettings { $0.video.trim.accuracy = accuracy }
+                let folder = try Paths.folder("audio-trim-\(accuracy.rawValue)")
+                let input = try await Fixtures.copy("tone.mp3", to: folder)
+                try await Harness.run("audio.trim?start=0.5&end=2", [input])
+                let info = try await Media.read(Paths.join(folder, "tone_trimmed.mp3"))
+                try expect(info.audioCodec == "mp3", "codec \(info.audioCodec ?? "-")")
+                try expect(info.duration >= 1.2 && info.duration <= 1.9, "duration \(info.duration)")
+                try expect(Paths.exists(input), "original removed")
+            }
+        }
+
+        suite.test("Audio trim asks for a range without the picture") {
+            Harness.useSettings()
+            let folder = try Paths.folder("audio-trim-dialog")
+            let input = try await Fixtures.copy("tone.wav", to: folder)
+            let ui = ScriptedInteraction()
+            ui.trim = TrimRange(start: 0.25, end: 1.25)
+            try await Harness.run("audio.trim", [input], ui: ui)
+            try expect(ui.trimPicture == false, "picture \(String(describing: ui.trimPicture))")
+            let info = try await Media.read(Paths.join(folder, "tone_trimmed.wav"))
+            try expect(info.duration >= 0.8 && info.duration <= 1.2, "duration \(info.duration)")
+        }
+
         suite.test("Cancelling an encode leaves nothing behind") {
             Harness.useSettings { $0.video.priority = .quality }
             let folder = try Paths.folder("video-cancel")

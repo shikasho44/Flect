@@ -104,6 +104,7 @@ public enum MenuCatalog {
                       .leaf("video.extractAudio.WMA", "to WMA", "menu.to"))),
 
         .group("audio", "Audio",
+               .leaf("audio.trim", "Trim"),
                .group("audio.convert", "Convert",
                       .leaf("audio.convert.MP3", "to MP3", "menu.to"),
                       .leaf("audio.convert.M4A", "to M4A", "menu.to"),

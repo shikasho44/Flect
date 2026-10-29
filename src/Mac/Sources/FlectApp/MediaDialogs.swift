@@ -9,6 +9,7 @@ import FlectKit
 final class Scrubber: ObservableObject {
     let player: AVPlayer
     let duration: Double
+    let picture: Bool
     @Published var position = 0.0
     @Published var playing = false
     @Published var previewable = true
@@ -16,8 +17,9 @@ final class Scrubber: ObservableObject {
     private var status: NSKeyValueObservation?
     var stopAt: (() -> Double?)?
 
-    init(path: String, duration: Double) {
+    init(path: String, duration: Double, picture: Bool = true) {
         self.duration = duration
+        self.picture = picture
         let item = AVPlayerItem(url: URL(fileURLWithPath: path))
         player = AVPlayer(playerItem: item)
         player.actionAtItemEnd = .pause
@@ -83,7 +85,7 @@ private struct ScrubberControls: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            if scrubber.previewable {
+            if scrubber.picture, scrubber.previewable {
                 PlayerView(player: scrubber.player)
                     .frame(minHeight: 240)
                     .background(Color.black)
@@ -105,10 +107,11 @@ private struct ScrubberControls: View {
 
 @MainActor
 enum TrimDialog {
-    static func ask(path: String, duration: Double) async -> TrimRange? {
-        let scrubber = Scrubber(path: path, duration: duration)
+    static func ask(path: String, duration: Double, picture: Bool) async -> TrimRange? {
+        let scrubber = Scrubber(path: path, duration: duration, picture: picture)
         defer { scrubber.stop() }
-        return await Dialog.ask("\(Branding.name) - \(Loc.t("dialog.trim.title"))", size: NSSize(width: 640, height: 560),
+        return await Dialog.ask("\(Branding.name) - \(Loc.t("dialog.trim.title"))",
+                                size: NSSize(width: 640, height: picture ? 560 : 320),
                                 resizable: true) { finish in
             TrimView(scrubber: scrubber, finish: finish)
         }

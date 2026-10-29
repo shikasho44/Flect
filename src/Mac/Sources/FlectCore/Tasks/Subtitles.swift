@@ -365,15 +365,17 @@ enum Whisper {
         _ = try await ProcessRunner.run(python, ["-m", "pip", "install", "--upgrade", "pip", "--quiet", "--disable-pip-version-check"],
                                         environment: utf8)
         progress.info(Loc.t("msg.subtitlesInstallingDeps"))
+        // PyAV 19 breaks faster-whisper's decoding (Konayukiw/Flect c0a00f9, 6fa9c39).
         let install = try await ProcessRunner.run(python, ["-m", "pip", "install", "--quiet", "--disable-pip-version-check",
-                                                           "faster-whisper"], environment: utf8)
+                                                           "faster-whisper", "av>=11,<19"], environment: utf8)
         if install.exitCode != 0 { throw FlectError("\(Loc.t("msg.subtitlesInstallFailed")): \(install.standardError)") }
         if try await !canImport() { throw FlectError(Loc.t("msg.subtitlesInstallFailed")) }
         progress.info(Loc.t("msg.subtitlesReady"))
     }
 
     private static func canImport() async throws -> Bool {
-        let result = try await ProcessRunner.run(python, ["-c", "import faster_whisper; print('ok')"], environment: utf8)
+        let result = try await ProcessRunner.run(python, ["-c", "import av, faster_whisper; print('ok' if int(av.__version__.split('.')[0]) < 19 else 'no')"],
+                                                 environment: utf8)
         return result.exitCode == 0 && result.standardOutput.contains("ok")
     }
 

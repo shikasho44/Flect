@@ -153,6 +153,9 @@ public enum MenuBuilder {
 
     private static func audio(_ selection: SelectionInfo) -> [MenuNode] {
         var items: [MenuNode] = []
+        if selection.paths.count == 1 {
+            items.append(.leaf("audio.trim", Loc.t("menu.audio.trim"), "audio.trim"))
+        }
         let convert = conversions(Selection.audioFormats, present: selection.formats, domain: "audio")
         if !convert.isEmpty { items.append(.popup("audio.convert", Loc.t("menu.audio.convert"), convert)) }
         items.append(.leaf("audio.subtitles", Loc.t("menu.audio.subtitles"), "audio.subtitles"))

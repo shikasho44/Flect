@@ -39,7 +39,7 @@
 | | |
 | --- | --- |
 | **图片** | 调整尺寸、压缩到指定大小、任意角度旋转、PNG/JPG/WEBP/HEIC/ICO/GIF/SVG 互相转换、文字识别、删除元数据、删除背景 |
-| **视频和音频** | 调整尺寸、剪切、缩略图、字幕、压缩到指定大小（含 Discord 预设）、旋转、转换为 MP4/MOV/MKV/M4A/AVI/WEBM/FLV/GIF、提取音频为 MP3/M4A/WAV/AIF/AIFF/AAC/OGG/WMA |
+| **视频和音频** | 调整尺寸、剪切、缩略图、字幕、压缩到指定大小（含 Discord 预设）、旋转、转换为 MP4/MOV/MKV/M4A/AVI/WEBM/FLV/GIF、提取音频为 MP3/M4A/WAV/AIF/AIFF/AAC/OGG/WMA。音频文件：剪切、转换、字幕 |
 | **文件夹** | 删除重复文件、删除空文件夹、目录树、批量重命名、分析、压缩为 ZIP/7z/TAR/tar.gz |
 | **压缩包** | 解压 ZIP、7z、TAR、tar.gz 和 RAR |
 | **文本** | PDF 预览、合并、导出为 PNG/JPG/TXT；数据格式转换（CSV、JSON、XML、HTML、MD、INI）；UTF-8、UTF-8 (BOM)、UTF-16、Shift_JIS；CRLF 与 LF；JSON 格式化与按键排序；JAR 反编译 |

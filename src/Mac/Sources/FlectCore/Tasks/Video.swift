@@ -221,7 +221,7 @@ final class VideoTrim: VideoTask {
             return true
         }
         guard let (path, info) = await readSingle(ui) else { return false }
-        range = await ui.askTrim(path: path, duration: info.duration)
+        range = await ui.askTrim(path: path, duration: info.duration, picture: true)
         return range != nil
     }
 
@@ -351,6 +351,11 @@ enum AudioFormat {
 
     static func fileExtension(_ target: String) -> String { "." + target.lowercased() }
 
+    static func forExtension(_ ext: String) -> String {
+        let name = ext.trimmingCharacters(in: CharacterSet(charactersIn: ".")).uppercased()
+        return ["MP3", "M4A", "AAC", "WAV", "AIF", "AIFF", "OGG", "WMA"].contains(name) ? name : "M4A"
+    }
+
     static func encoder(_ target: String) -> [String] {
         switch target {
         case "MP3": return ["-c:a", "libmp3lame", "-b:a", "\(lossyKbps)k"]
@@ -372,6 +377,65 @@ enum AudioFormat {
         case "OGG": return "vorbis"
         default: return nil
         }
+    }
+}
+
+// The same trim as video, without the picture, as in src/App/Tasks/Audio/Audio.cs.
+final class AudioTrim: BatchTask {
+    private var range: TrimRange?
+
+    override var title: String { Loc.t("menu.audio.trim") }
+
+    override func configure(_ ui: Interaction) async -> Bool {
+        if let start = request["start"].flatMap(Formatting.parseTimecode),
+           let end = request["end"].flatMap(Formatting.parseTimecode) {
+            range = TrimRange(start: start, end: end)
+            return true
+        }
+        guard let path = request.paths.first else { return false }
+        guard let info = try? await Media.read(path) else {
+            await ui.reportError(Loc.t("msg.noDuration"))
+            return false
+        }
+        if !info.hasAudio {
+            await ui.reportError(Loc.t("msg.noAudioTrack"))
+            return false
+        }
+        if info.duration <= 0 {
+            await ui.reportError(Loc.t("msg.noDuration"))
+            return false
+        }
+        range = await ui.askTrim(path: path, duration: info.duration, picture: false)
+        return range != nil
+    }
+
+    override func process(_ path: String, _ progress: TaskProgress) async throws {
+        guard let range else { return }
+        let info = try await Media.read(path)
+        if !info.hasAudio { throw FlectError(Loc.t("msg.noAudioTrack")) }
+
+        let start = min(max(range.start, 0), max(0, info.duration - 0.05))
+        let end = min(max(range.end, start), info.duration)
+        let length = end - start
+        if length <= 0 { throw FlectError(Loc.t("dialog.trim.backwards")) }
+
+        let output = try OutputPath.derive(path, suffix: "_trimmed")
+        let seek = Ffmpeg.preamble + ["-ss", seconds(start), "-i", path, "-t", seconds(length)]
+        let encode = AudioFormat.encoder(AudioFormat.forExtension((output as NSString).pathExtension))
+
+        try await OutputPath.producing(output) {
+            if Settings.current.video.trim.accuracy == .keyframe {
+                try await Ffmpeg.run(seek + ["-c", "copy", "-avoid_negative_ts", "make_zero", output], progress,
+                                     label: Loc.t("label.trimming"), duration: length)
+            } else {
+                try await Ffmpeg.run(seek + ["-vn"] + encode + [output], progress,
+                                     label: Loc.t("label.trimming"), duration: length)
+            }
+        }
+    }
+
+    private func seconds(_ value: Double) -> String {
+        Formatting.number((value * 1000).rounded() / 1000)
     }
 }
 

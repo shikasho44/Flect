@@ -39,7 +39,7 @@ Windows 版と同じ機能を、同じメニュー・設定・出力ファイル
 | | |
 | --- | --- |
 | **画像** | リサイズ、指定サイズへの圧縮、任意角度の回転、PNG・JPG・WEBP・HEIC・ICO・GIF・SVG の相互変換、OCR、メタデータ削除、背景削除 |
-| **動画・音声** | リサイズ、トリム、サムネイル、字幕、指定サイズへの圧縮（Discord 用プリセットあり）、回転、MP4・MOV・MKV・M4A・AVI・WEBM・FLV・GIF への変換、MP3・M4A・WAV・AIF・AIFF・AAC・OGG・WMA への音声抽出 |
+| **動画・音声** | リサイズ、トリム、サムネイル、字幕、指定サイズへの圧縮（Discord 用プリセットあり）、回転、MP4・MOV・MKV・M4A・AVI・WEBM・FLV・GIF への変換、MP3・M4A・WAV・AIF・AIFF・AAC・OGG・WMA への音声抽出。音声ファイルは切り出し・変換・字幕 |
 | **フォルダ** | 重複削除、空フォルダ削除、ツリー表示、名前の一括変更、解析、ZIP・7z・TAR・tar.gz への圧縮 |
 | **アーカイブ** | ZIP・7z・TAR・tar.gz・RAR の展開 |
 | **テキスト** | PDF のプレビュー・結合・PNG/JPG/TXT への書き出し、データ形式の変換（CSV・JSON・XML・HTML・MD・INI）、UTF-8・UTF-8 (BOM)・UTF-16・Shift_JIS、CRLF と LF、JSON の整形とキー並べ替え、JAR の逆コンパイル |

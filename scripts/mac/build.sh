@@ -33,6 +33,9 @@ work=$repo_root/build/mac
 props=$repo_root/Directory.Build.props
 name=$(sed -n 's:.*<BrandName>\(.*\)</BrandName>.*:\1:p' $props)
 version=$(sed -n 's:.*<BrandVersion>\(.*\)</BrandVersion>.*:\1:p' $props)
+# Shown as in Directory.Build.props' BrandDisplayVersion: 1.2.0 and 1.2.0.0 read 1.2.
+[[ $version =~ '^[0-9]+\.[0-9]+\.[0-9]+\.0$' ]] && version=${version%.0}
+[[ $version =~ '^[0-9]+\.[0-9]+\.0$' ]] && version=${version%.0}
 build=$(git -C $repo_root rev-list --count HEAD 2>/dev/null || echo 1)
 
 export CLANG_MODULE_CACHE_PATH=$package/.build/clang-module-cache

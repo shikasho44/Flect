@@ -115,7 +115,7 @@ public struct RenamePlan {
 public protocol Interaction: AnyObject {
     func askPixels() async -> PixelTarget?
     func askTargetBytes(largest: Int64) async -> Int64?
-    func askTrim(path: String, duration: Double) async -> TrimRange?
+    func askTrim(path: String, duration: Double, picture: Bool) async -> TrimRange?
     func askThumbnail(path: String, duration: Double) async -> Double?
     func askRename(sampleExtension: String) async -> RenamePlan?
     func askDuplicates(_ groups: [[ScannedFile]]) async -> DuplicateMode?

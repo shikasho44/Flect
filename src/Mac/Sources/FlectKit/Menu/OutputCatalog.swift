@@ -31,6 +31,7 @@ public enum OutputCatalog {
         .init(key: "image.strip", categoryKey: "settings.nav.image", labelKey: "menu.image.strip", taskIds: ["image.strip"]),
         .init(key: "image.chromakey", categoryKey: "settings.nav.image", labelKey: "menu.image.chromakey", taskIds: ["image.chromakey"]),
 
+        .init(key: "audio.trim", categoryKey: "settings.output.audio", labelKey: "menu.audio.trim", taskIds: ["audio.trim"]),
         .init(key: "audio.convert", categoryKey: "settings.output.audio", labelKey: "menu.audio.convert", taskIds: ["audio.convert"]),
 
         .init(key: "text.convert", categoryKey: "settings.nav.text", labelKey: "menu.text.convert", taskIds: ["text.convert"]),

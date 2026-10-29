@@ -38,6 +38,7 @@ final class ScriptedInteraction: Interaction {
     var pixels: PixelTarget?
     var targetBytes: Int64?
     var trim: TrimRange?
+    var trimPicture: Bool?
     var thumbnail: Double?
     var rename: RenamePlan?
     var duplicates: DuplicateMode?
@@ -50,7 +51,10 @@ final class ScriptedInteraction: Interaction {
 
     func askPixels() async -> PixelTarget? { pixels }
     func askTargetBytes(largest: Int64) async -> Int64? { targetBytes }
-    func askTrim(path: String, duration: Double) async -> TrimRange? { trim }
+    func askTrim(path: String, duration: Double, picture: Bool) async -> TrimRange? {
+        trimPicture = picture
+        return trim
+    }
     func askThumbnail(path: String, duration: Double) async -> Double? { thumbnail }
     func askRename(sampleExtension: String) async -> RenamePlan? { rename }
     func askDuplicates(_ groups: [[ScannedFile]]) async -> DuplicateMode? { duplicates }

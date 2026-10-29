@@ -123,7 +123,9 @@ final class AppInteraction: Interaction {
 
     func askTargetBytes(largest: Int64) async -> Int64? { await TargetBytesDialog.ask(largest: largest) }
 
-    func askTrim(path: String, duration: Double) async -> TrimRange? { await TrimDialog.ask(path: path, duration: duration) }
+    func askTrim(path: String, duration: Double, picture: Bool) async -> TrimRange? {
+        await TrimDialog.ask(path: path, duration: duration, picture: picture)
+    }
 
     func askThumbnail(path: String, duration: Double) async -> Double? {
         await ThumbnailDialog.ask(path: path, duration: duration)

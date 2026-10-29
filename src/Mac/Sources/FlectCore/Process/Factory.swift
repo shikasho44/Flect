@@ -30,6 +30,7 @@ public enum Factory {
         case "video.convert": return VideoConvert(request)
         case "video.extractAudio": return VideoExtractAudio(request)
 
+        case "audio.trim": return AudioTrim(request)
         case "audio.convert": return AudioConvert(request)
         case "audio.subtitles": return MediaSubtitles(request)
 
