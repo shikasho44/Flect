@@ -9,7 +9,7 @@ public struct OutputFeature: Hashable {
     public var label: String { "\(Loc.t(categoryKey)) / \(Loc.t(labelKey))" }
 }
 
-// The features that write new files, as in src/App/Main/Config/OutputCatalog.cs.
+// The features that write new files, as in src/App/Settings/Output/OutputList.cs.
 public enum OutputCatalog {
     public static let features: [OutputFeature] = [
         .init(key: "video.resize", categoryKey: "settings.nav.video", labelKey: "menu.video.resize", taskIds: ["video.resize"]),

@@ -141,7 +141,7 @@ dotnet test evals/Evals/Evals.csproj -c Release --filter-not-trait "Category=AI"
 
 - The Mac port lives in `src/Mac` (Swift) and `scripts/mac`. See [README.Mac.md](README.Mac.md) for the layout.
 - It needs only the Xcode Command Line Tools. Run `scripts/mac/fetch.sh` once, then `scripts/mac/test.sh` before submitting.
-- The Mac string tables are generated from `src/App/Main/I18n` by `python3 scripts/mac/sync-strings.py`. Put Mac-only wording in `src/Mac/Sources/FlectKit/I18n/Strings+Mac.swift`, in all three languages.
+- The Mac string tables are generated from `src/App/I18n` by `python3 scripts/mac/sync-strings.py`. Put Mac-only wording in `src/Mac/Sources/FlectKit/I18n/Strings+Mac.swift`, in all three languages.
 - Mac components and their licences are documented in `src/Mac/NOTICES.Mac.md`.
 
 ---

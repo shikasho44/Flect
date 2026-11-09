@@ -380,7 +380,7 @@ enum AudioFormat {
     }
 }
 
-// The same trim as video, without the picture, as in src/App/Tasks/Audio/Audio.cs.
+// The same trim as video, without the picture, as in src/App/Audio/Trim.cs.
 final class AudioTrim: BatchTask {
     private var range: TrimRange?
 
