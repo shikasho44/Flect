@@ -62,6 +62,7 @@ enum Demo {
         "folder.removeEmpty": "削除してよいかの確認",
         "folder.tree": "ツリーを表示する結果画面",
         "folder.analyze": "解析結果の画面",
+        "file.analyze": "ファイル解析の画面",
         "pdf.merge": "結合する順番を決める画面",
         "pdf.preview": "PDF のプレビュー画面",
         "showActions": "操作を選ぶ画面",

@@ -19,9 +19,9 @@ public enum MenuBuilder {
     private static let toPrefix = "to "
 
     public static func build(_ selection: SelectionInfo, settings: Settings) -> [MenuNode] {
-        if selection.isEmpty { return [] }
+        if selection.isEmpty && !selection.single { return [] }
 
-        let nodes: [MenuNode]
+        var nodes: [MenuNode]
         switch selection.category {
         case .folder: nodes = folder()
         case .pdf: nodes = pdf(selection)
@@ -31,7 +31,10 @@ public enum MenuBuilder {
         case .text: nodes = text(selection)
         case .jar: nodes = [.leaf("jar.decompile", Loc.t("menu.jar.decompile"), "jar.decompile")]
         case .archive: nodes = [.leaf("archive.extract", Loc.t("menu.archive.extract"), "archive.extract")]
-        case .none: return []
+        case .none: nodes = []
+        }
+        if selection.category != .folder, selection.single {
+            nodes.insert(.leaf("file.analyze", Loc.t("menu.file.analyze"), "file.analyze"), at: 0)
         }
         return prune(nodes, hidden: Set(settings.general.hiddenMenuItems))
     }
@@ -162,7 +165,7 @@ public enum MenuBuilder {
         return items
     }
 
-    static func textTargets(from source: String) -> [String] {
+    public static func textTargets(from source: String) -> [String] {
         var targets = source == "TXT" ? [] : ["TXT"]
         switch source {
         case "CSV": targets += ["JSON", "XML", "HTML", "MD"]

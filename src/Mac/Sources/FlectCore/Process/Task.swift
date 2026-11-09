@@ -125,5 +125,6 @@ public protocol Interaction: AnyObject {
     func showText(title: String, text: String) async
     func showAnalyze(_ report: AnalyzeReport) async
     func showPdfPreview(path: String) async
+    func showFileAnalysis(_ report: FileReport) async
     func copyToClipboard(_ text: String) async -> Bool
 }

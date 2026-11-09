@@ -4,6 +4,8 @@ import FlectKit
 public enum Factory {
     public static func create(_ request: Request) -> FlectTask? {
         switch request.id {
+        case "file.analyze": return FileAnalyze(request)
+
         case "folder.removeDuplicate": return FolderRemoveDuplicate(request)
         case "folder.removeEmpty": return FolderRemoveEmpty(request)
         case "folder.tree": return FolderTree(request)

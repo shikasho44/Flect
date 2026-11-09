@@ -39,6 +39,7 @@ final class ScriptedInteraction: Interaction {
     var targetBytes: Int64?
     var trim: TrimRange?
     var trimPicture: Bool?
+    var fileReport: FileReport?
     var thumbnail: Double?
     var rename: RenamePlan?
     var duplicates: DuplicateMode?
@@ -64,6 +65,7 @@ final class ScriptedInteraction: Interaction {
     func showText(title: String, text: String) async { shownText = text }
     func showAnalyze(_ report: AnalyzeReport) async { analyzed = report }
     func showPdfPreview(path: String) async {}
+    func showFileAnalysis(_ report: FileReport) async { fileReport = report }
     func copyToClipboard(_ text: String) async -> Bool {
         clipboard = text
         return true

@@ -21,6 +21,8 @@ public struct MenuEntry: Hashable {
 
 public enum MenuCatalog {
     public static let categories: [MenuEntry] = [
+        .leaf("file.analyze", "Analyze"),
+
         .group("folder", "Folder",
                .leaf("folder.removeDuplicate", "Remove Duplicate"),
                .leaf("folder.removeEmpty", "Remove Empty"),

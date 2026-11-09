@@ -43,9 +43,9 @@ enum CoreEvals {
             try expect(!many.contains("video.trim") && !many.contains("video.compress.discord"), "\(many)")
         }
 
-        suite.test("Audio trim is offered for one audio file, first in the menu") {
+        suite.test("Audio trim is offered for one audio file, first after Analyze") {
             let one = MenuBuilder.build(Selection.classify([item("/x/a.mp3")], probeGifs: false), settings: Settings())
-            try expect(one.first?.id == "audio.trim" && one.first?.verb == "audio.trim", "\(ids(one))")
+            try expect(one.map(\.id).prefix(2) == ["file.analyze", "audio.trim"] && one[1].verb == "audio.trim", "\(ids(one))")
             let two = MenuBuilder.build(Selection.classify([item("/x/a.mp3"), item("/x/b.wav")], probeGifs: false),
                                         settings: Settings())
             try expect(!ids(two).contains("audio.trim"), "\(ids(two))")
@@ -68,7 +68,8 @@ enum CoreEvals {
             Loc.use(.japanese)
             defer { Loc.use(.english) }
             let nodes = MenuBuilder.build(Selection.classify([item("/x/a")], probeGifs: false), settings: Settings())
-            try expect(nodes.isEmpty, "files without an extension get no menu")
+            try expect(nodes.map(\.id) == ["file.analyze"] && nodes.first?.label == "解析",
+                       "a file without an extension only offers Analyze: \(nodes.map(\.label))")
             let folder = MenuBuilder.build(Selection.classify([item("/x/a", directory: true)], probeGifs: false), settings: Settings())
             try expect(folder.first?.label == "重複を削除", folder.first?.label ?? "-")
         }

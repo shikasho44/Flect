@@ -12,6 +12,8 @@ public struct SelectionInfo {
     public var maxSize: UInt64 = 0
     public var allJson = false
     public var hasAnimatedGif = false
+    // Exactly one file (not a folder or bundle), whatever its type: File › Analyze applies.
+    public var single = false
 
     public var isEmpty: Bool { paths.isEmpty || category == .none }
 
@@ -88,10 +90,19 @@ public enum Selection {
 
         var gifPaths: [String] = []
         var sizeKnown = true
+        let single = items.count == 1 && !items[0].isDirectory && !isBundle(items[0].path)
+        info.single = single
 
         for item in items {
             let (category, format) = classification(item)
-            if category == .none { return SelectionInfo() }
+            if category == .none {
+                var unknown = SelectionInfo()
+                if single {
+                    unknown.paths = [item.path]
+                    unknown.single = true
+                }
+                return unknown
+            }
             if info.category == .none {
                 info.category = category
             } else if info.category != category {
@@ -116,6 +127,12 @@ public enum Selection {
             info.hasAnimatedGif = gifPaths.contains(where: GifProbe.isAnimated)
         }
         return info
+    }
+
+    static func isBundle(_ path: String) -> Bool {
+        let ext = (path as NSString).pathExtension
+        guard !ext.isEmpty, let type = UTType(filenameExtension: ext, conformingTo: .directory) else { return false }
+        return type.conforms(to: .package) && FileManager.default.fileExists(atPath: path + "/Contents")
     }
 
     static func classification(_ item: Item) -> (Category, String?) {

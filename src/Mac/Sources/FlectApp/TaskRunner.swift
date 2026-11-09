@@ -147,6 +147,8 @@ final class AppInteraction: Interaction {
 
     func showPdfPreview(path: String) async { await PdfPreviewWindow.show(path) }
 
+    func showFileAnalysis(_ report: FileReport) async { await FileAnalyzeWindow.show(report) }
+
     func copyToClipboard(_ text: String) async -> Bool {
         await MainActor.run {
             NSPasteboard.general.clearContents()
