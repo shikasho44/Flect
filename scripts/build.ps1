@@ -27,8 +27,11 @@ if (-not $brand) { throw 'BrandName is missing from Directory.Build.props' }
 
 $shellDll = "${brand}Shell.dll"
 $dist = Join-Path $repoRoot 'dist'
+$stringsGenerator = Join-Path $repoRoot 'src\I18n\generate.mjs'
 
 Write-Host "Building $brand" -ForegroundColor Cyan
+
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'node was not found. Node.js is required to generate the UI strings.' }
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 if (-not (Test-Path $vswhere)) { throw 'vswhere.exe not found. Visual Studio Build Tools are required.' }
@@ -42,6 +45,11 @@ Write-Host 'shell extension...'
 & $msbuild (Join-Path $repoRoot 'src\Shell\ContextMenu.vcxproj') `
     /p:Configuration=$Configuration /p:Platform=x64 /v:minimal /nologo
 if ($LASTEXITCODE -ne 0) { throw 'The shell extension failed to build.' }
+
+Write-Host 'preview handler...'
+& $msbuild (Join-Path $repoRoot 'src\Preview\FlectPreview.vcxproj') `
+    /p:Configuration=$Configuration /p:Platform=x64 /v:minimal /nologo
+if ($LASTEXITCODE -ne 0) { throw 'The preview handler failed to build. Run scripts\fetch.ps1 if the WebView2 SDK is missing.' }
 
 Write-Host 'worker...'
 Remove-Item -Recurse -Force $dist -ErrorAction SilentlyContinue
@@ -60,6 +68,28 @@ else { $publishArgs += @('--self-contained', 'false') }
 if ($LASTEXITCODE -ne 0) { throw 'The worker failed to build.' }
 
 Copy-Item (Join-Path $repoRoot "build\shell\$Configuration\$shellDll") -Destination $dist -Force
+Copy-Item (Join-Path $repoRoot "build\preview\$Configuration\${brand}Preview.dll") -Destination $dist -Force
+
+$previewWeb = Join-Path $dist 'preview\web'
+New-Item -ItemType Directory -Force -Path $previewWeb | Out-Null
+Copy-Item (Join-Path $repoRoot 'src\Preview\web\*') -Destination $previewWeb -Recurse -Force
+
+& node $stringsGenerator preview (Join-Path $previewWeb 'strings.js')
+if ($LASTEXITCODE -ne 0) { throw 'The preview strings failed to generate.' }
+
+& node $stringsGenerator web (Join-Path $repoRoot 'src\Web\js\strings.js')
+if ($LASTEXITCODE -ne 0) { throw 'The website strings failed to generate.' }
+
+$previewLibrary = Join-Path $repoRoot 'dependencies\preview\lib'
+if (Test-Path $previewLibrary) {
+    Copy-Item $previewLibrary -Destination $previewWeb -Recurse -Force
+    Get-ChildItem (Join-Path $previewWeb 'lib') -Recurse -File -Filter '.version' | Remove-Item -Force
+}
+else {
+    Write-Host 'Note: the preview libraries are not bundled - run scripts\fetch.ps1.' -ForegroundColor Yellow
+}
+
+Copy-Item (Join-Path $repoRoot 'NOTICES.md') -Destination $dist -Force
 
 $thirdParty = Join-Path $repoRoot 'dependencies'
 $depsOut = Join-Path $dist 'deps'

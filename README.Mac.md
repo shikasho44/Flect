@@ -90,7 +90,7 @@ scripts/mac/install.sh    # Copies the app into ~/Applications and turns the Fin
 - `FLECT_SIGNING_IDENTITY="Developer ID Application: …"` signs with hardened runtime; `FLECT_NOTARY_PROFILE` makes `package.sh` notarize and staple the disk image.
 - `FLECT_ARCHS="arm64 x86_64"` builds a universal app (run `fetch.sh` with the same variable first; the x86_64 ffmpeg build needs `nasm`).
 - `FLECT_UPDATE_REPOSITORY=owner/repo` chooses where the update check looks for releases (default `shikasho44/Flect`). A release counts for the Mac when it carries a `.dmg` or a `*mac*.zip` asset.
-- `python3 scripts/mac/sync-strings.py` regenerates the Mac string tables from `src/App/I18n`. Mac-only wording lives in `src/Mac/Sources/FlectKit/I18n/Strings+Mac.swift`.
+- `python3 scripts/mac/sync-strings.py` regenerates the Mac string tables from the `app` section of `src/I18n/*.json`. Mac-only wording lives in `src/Mac/Sources/FlectKit/I18n/Strings+Mac.swift`.
 
 ### Layout
 

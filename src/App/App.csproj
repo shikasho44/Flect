@@ -91,6 +91,10 @@
   </Target>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\Preview\Extensions.inc" LogicalName="Flect.Preview.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Magick.NET-Q8-x64" Version="14.16.0" />
     <PackageReference Include="PDFtoImage" Version="5.3.0" />
     <PackageReference Include="PdfPig" Version="0.1.15" />
@@ -106,6 +110,16 @@
     <Delete Files="@(_ForeignSymbols)" />
   </Target>
 
+  <ItemGroup>
+    <Compile Include="$(BrandBuildDir)i18n\Strings.g.cs" Link="I18n\Strings.g.cs" />
+  </ItemGroup>
+
+  <Target Name="GenerateStringsSource" BeforeTargets="BeforeBuild;CoreCompile"
+          Inputs="$(StringsInputs)"
+          Outputs="$(BrandBuildDir)i18n\Strings.g.cs">
+    <Exec Command="node &quot;$(StringsGenerator)&quot; app &quot;$(BrandBuildDir)i18n\Strings.g.cs&quot;" />
+  </Target>
+
   <Target Name="GenerateBrandingSource" BeforeTargets="BeforeCompile">
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <ItemGroup>
@@ -115,6 +129,8 @@
       <_BrandLine Include="{" />
       <_BrandLine Include="    public const string Name = &quot;$(BrandName)&quot;%3B" />
       <_BrandLine Include="    public const string Version = &quot;$(BrandDisplayVersion)&quot;%3B" />
+      <_BrandLine Include="    public const string PreviewClsid = &quot;$(BrandPreviewClsid)&quot;%3B" />
+      <_BrandLine Include="    public const string PreviewHtmlClsid = &quot;$(BrandPreviewHtmlClsid)&quot;%3B" />
       <_BrandLine Include="}" />
     </ItemGroup>
     <WriteLinesToFile File="$(IntermediateOutputPath)Branding.g.cs"
