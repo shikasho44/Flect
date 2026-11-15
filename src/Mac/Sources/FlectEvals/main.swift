@@ -60,6 +60,19 @@ var categories: Set<String> = ["core", "ai"]
 for flag in arguments where flag.hasPrefix("--") { categories.insert(String(flag.dropFirst(2))) }
 let filters = arguments.filter { !$0.hasPrefix("--") }
 
+if let index = arguments.firstIndex(of: "--render-preview"), index + 2 < arguments.count {
+    Loc.use(arguments.contains("ja") ? .japanese : .english)
+    do {
+        try MainActor.assumeIsolated {
+            try PreviewRender.run(arguments[index + 1], arguments[index + 2], dark: arguments.contains("dark"))
+        }
+        exit(0)
+    } catch {
+        print("Render failed: \(error)")
+        exit(1)
+    }
+}
+
 if let index = arguments.firstIndex(of: "--demo"), index + 1 < arguments.count {
     if ProcessInfo.processInfo.environment["FLECT_DEPS"] == nil, let dependencies = locateDependencies() {
         setenv("FLECT_DEPS", dependencies, 1)
@@ -102,6 +115,7 @@ InspectImageEvals.register(suite)
 InspectTextEvals.register(suite)
 InspectArchiveEvals.register(suite)
 InspectCoreEvals.register(suite)
+PreviewEvals.register(suite)
 await suite.run(filters: filters, categories: categories)
 
 if !categories.contains("keep") { try? FileManager.default.removeItem(atPath: work) }

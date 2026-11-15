@@ -74,7 +74,7 @@ public enum Signature {
         return .init(kind: "", family: "binary")
     }
 
-    static func int32(_ bytes: [UInt8], at offset: Int) -> Int32 {
+    public static func int32(_ bytes: [UInt8], at offset: Int) -> Int32 {
         guard offset >= 0, bytes.count >= offset + 4 else { return 0 }
         return Int32(bitPattern: UInt32(bytes[offset]) | UInt32(bytes[offset + 1]) << 8
                      | UInt32(bytes[offset + 2]) << 16 | UInt32(bytes[offset + 3]) << 24)

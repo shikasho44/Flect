@@ -14,6 +14,7 @@ lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchSe
 
 if [[ ${1:-} == --uninstall ]]; then
   pluginkit -e ignore -i $identifier.finder 2>/dev/null || true
+  pluginkit -r $target/Contents/PlugIns/FlectPreview.appex 2>/dev/null || true
   [[ -d $target ]] && $lsregister -u $target
   pkill -f "Flect.app/Contents/PlugIns/FlectFinder.appex" 2>/dev/null || true
   if [[ -d $target ]]; then
@@ -36,6 +37,9 @@ ditto $source $target
 $lsregister -u $source 2>/dev/null || true
 $lsregister -f -R $target
 pluginkit -a $target/Contents/PlugIns/FlectFinder.appex
+pluginkit -a $target/Contents/PlugIns/FlectPreview.appex
+pluginkit -e use -i $identifier.preview
 pluginkit -e use -i $identifier.finder
 echo "Installed $target"
 pluginkit -m -i $identifier.finder
+pluginkit -m -i $identifier.preview

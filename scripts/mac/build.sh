@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Builds dist/mac/Flect.app: the app, its Finder extension and the bundled tools.
+# Builds dist/mac/Flect.app: the app, its Finder and Quick Look extensions and the bundled tools.
 #
 #   scripts/mac/fetch.sh                  # once: ffmpeg, ffprobe and cfr.jar
 #   scripts/mac/build.sh                  # release build for this Mac's architecture
@@ -47,6 +47,7 @@ for arch in $archs; do
   triple=(--triple $arch-apple-macosx14.0)
   quiet swift build --package-path $package --disable-sandbox -c $configuration $triple --product Flect
   quiet swift build --package-path $package --disable-sandbox -c $configuration $triple --product FlectFinder
+  quiet swift build --package-path $package --disable-sandbox -c $configuration $triple --product FlectPreview
   binaries+=($(swift build --package-path $package --disable-sandbox -c $configuration $triple --show-bin-path))
 done
 
@@ -62,7 +63,8 @@ combine() {
 
 rm -rf $app
 extension=$app/Contents/PlugIns/FlectFinder.appex
-mkdir -p $app/Contents/{MacOS,Helpers,Resources/deps} $extension/Contents/{MacOS,Resources}
+preview=$app/Contents/PlugIns/FlectPreview.appex
+mkdir -p $app/Contents/{MacOS,Helpers,Resources/deps} $extension/Contents/{MacOS,Resources} $preview/Contents/MacOS
 
 fill() {
   sed -e "s/__NAME__/$name/g" -e "s/__VERSION__/$version/g" -e "s/__BUILD__/$build/g" \
@@ -70,8 +72,10 @@ fill() {
 }
 fill $package/Resources/App/Info.plist $app/Contents/Info.plist
 fill $package/Resources/Finder/Info.plist $extension/Contents/Info.plist
+fill $package/Resources/Preview/Info.plist $preview/Contents/Info.plist
 combine Flect $app/Contents/MacOS/Flect
 combine FlectFinder $extension/Contents/MacOS/FlectFinder
+combine FlectPreview $preview/Contents/MacOS/FlectPreview
 
 mkdir -p $work
 icon_source=$repo_root/src/Web/assets/Flect.png
@@ -122,6 +126,7 @@ for tool in $app/Contents/Helpers/*(N); do
   codesign --force --sign $identity $runtime $tool
 done
 codesign --force --sign $identity $runtime --entitlements $package/Resources/Finder/Finder.entitlements $extension
+codesign --force --sign $identity $runtime --entitlements $package/Resources/Preview/Preview.entitlements $preview
 codesign --force --sign $identity $runtime $app
 codesign --verify --deep --strict $app
 

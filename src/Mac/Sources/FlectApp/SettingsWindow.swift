@@ -28,7 +28,7 @@ final class SettingsStore: ObservableObject {
 }
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case general, folder, video, image, text, ocr, code, output
+    case general, folder, video, image, text, ocr, code, preview, output
 
     var id: String { rawValue }
 
@@ -43,6 +43,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
         case .text: return "doc.text"
         case .ocr: return "text.viewfinder"
         case .code: return "chevron.left.forwardslash.chevron.right"
+        case .preview: return "eye"
         case .output: return "square.and.arrow.down"
         }
     }
@@ -90,6 +91,7 @@ struct SettingsView: View {
                 case .text: TextPage(store: store)
                 case .ocr: OcrPage(store: store)
                 case .code: CodePage(store: store)
+                case .preview: PreviewPage()
                 case .output: OutputPage(store: store)
                 }
             }
@@ -804,5 +806,22 @@ struct OutputPage: View {
         let current = ((store.settings.output.folders[key] ?? "") as NSString).expandingTildeInPath
         if current.hasPrefix("/"), FileSystem.isDirectory(current) { panel.directoryURL = URL(fileURLWithPath: current) }
         if panel.runModal() == .OK, let url = panel.url { store.settings.output.folders[key] = url.path }
+    }
+}
+
+struct PreviewPage: View {
+    var body: some View {
+        Form {
+            Section(Loc.t("settings.preview.general")) {
+                Hint(Loc.t("settings.preview.general.hint"))
+                Hint(Loc.t("settings.preview.mac.policy"))
+                Hint(Loc.t("settings.preview.mac.toggle"))
+                Button(Loc.t("settings.general.finder.open")) {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            }
+        }
     }
 }

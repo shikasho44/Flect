@@ -8,6 +8,7 @@ let package = Package(
     products: [
         .executable(name: "Flect", targets: ["FlectApp"]),
         .executable(name: "FlectFinder", targets: ["FlectFinder"]),
+        .executable(name: "FlectPreview", targets: ["FlectPreview"]),
         .executable(name: "FlectEvals", targets: ["FlectEvals"]),
     ],
     targets: [
@@ -47,9 +48,23 @@ let package = Package(
                 .unsafeFlags(["-Xlinker", "-application_extension"]),
             ]
         ),
+        .target(
+            name: "FlectPreviewKit",
+            dependencies: ["FlectKit"],
+            swiftSettings: [.unsafeFlags(["-application-extension"])]
+        ),
+        .executableTarget(
+            name: "FlectPreview",
+            dependencies: ["FlectPreviewKit"],
+            swiftSettings: [.unsafeFlags(["-application-extension"])],
+            linkerSettings: [
+                .linkedFramework("QuickLookUI"),
+                .unsafeFlags(["-Xlinker", "-application_extension"]),
+            ]
+        ),
         .executableTarget(
             name: "FlectEvals",
-            dependencies: ["FlectCore"]
+            dependencies: ["FlectCore", "FlectPreviewKit"]
         ),
     ],
     swiftLanguageModes: [.v5]
